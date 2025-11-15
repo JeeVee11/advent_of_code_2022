@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::util::{Coord, Grid};
+use aoc_util::{Coord, Grid};
 
 pub fn run() {
     part2();
