@@ -42,41 +42,41 @@ fn part1() {
 }
 
 fn part2() {
-    const W: i32 = 40;
-    const H: i32 = 6;
+    // const W: i32 = 40;
+    // const H: i32 = 6;
 
-    let mut x = 1;
-    let mut clk = 0;
+    // let mut x = 1;
+    // let mut clk = 0;
 
-    for l in INPUT.lines() {
-        let (instr, ns) = l.split_at(4);
+    // for l in INPUT.lines() {
+    //     let (instr, ns) = l.split_at(4);
 
-        let (i, j) = (clk % W, clk / W);
+    //     let (i, j) = (clk % W, clk / W);
 
-        if i == x - 1 || i == x || i == x + 1 {
-            print!("#");
-        } else {
-            print!(".");
-        }
+    //     if i == x - 1 || i == x || i == x + 1 {
+    //         print!("#");
+    //     } else {
+    //         print!(".");
+    //     }
 
-        if i == W - 1 {
-            println!();
-        }
+    //     if i == W - 1 {
+    //         println!();
+    //     }
 
-        if j == H - 1 {
-            println!();
-        }
+    //     if j == H - 1 {
+    //         println!();
+    //     }
 
-        match instr {
-            "addx" => {
-                // let n: i32 = ns[1..].parse().unwrap();
-                // x += n;
-                clk += 2;
-            }
+    //     match instr {
+    //         "addx" => {
+    //             // let n: i32 = ns[1..].parse().unwrap();
+    //             // x += n;
+    //             clk += 2;
+    //         }
 
-            "noop" => clk += 1,
+    //         "noop" => clk += 1,
 
-            _ => unreachable!(),
-        }
-    }
+    //         _ => unreachable!(),
+    //     }
+    // }
 }
