@@ -16,19 +16,43 @@ fn part1() {
 }
 
 fn part2() {
-    let input: Vec<_> = parse_input().collect();
+    let mut input: Vec<_> = parse_input()
+        .map(|(sc, bc)| {
+            let dist = (sc.x.abs_diff(bc.x) + sc.y.abs_diff(bc.y)) as isize;
+            (sc, dist)
+        })
+        .collect();
+
+    input.sort_unstable_by_key(|(c, dist)| c.x - dist);
 
     let max = 4000000;
 
     for y_check in 0..=max {
-        let ranges = calc_ranges(y_check, &input);
+        let mut ranges: Vec<_> = input
+            .iter()
+            .filter_map(|(sc, dist)| {
+                let x_left = dist - (sc.y - y_check).abs();
+                (x_left > 0).then(|| (sc.x - x_left, sc.x + x_left))
+            })
+            .collect();
 
-        if ranges.len() > 1 {
-            let x = *ranges.first().unwrap().end() + 1;
+        ranges.sort_unstable_by_key(|r| r.0);
 
-            if x >= 0 && x <= max {
-                dbg!(x * 4000000 + y_check);
+        let (_, mut end) = ranges[0];
+
+        for (s, e) in ranges.into_iter().skip(1) {
+            if s > max {
                 break;
+            }
+
+            if s > end {
+                let x = s - 1;
+                if x >= 0 {
+                    dbg!(x * 4000000 + y_check);
+                    return;
+                }
+            } else if e > end {
+                end = e;
             }
         }
     }
