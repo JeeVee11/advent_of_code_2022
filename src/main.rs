@@ -1,4 +1,5 @@
 #![allow(dead_code)]
+mod day16;
 mod day15;
 mod day10;
 mod day11;
@@ -14,5 +15,5 @@ mod day8;
 mod day9;
 
 fn main() {
-    day15::run();
+    day16::run();
 }
