@@ -1,4 +1,5 @@
 use std::{
+    cmp::max,
     collections::{HashMap, HashSet},
     iter,
 };
@@ -10,48 +11,86 @@ pub fn run() {
 const INPUT: &str = include_str!("in");
 
 fn part1() {
-    let dag = parse_input();
-    let mut dist = HashMap::from([("AA", 0)]);
-    let mut open = HashSet::new();
+    let graph = parse_input();
+    let open = graph
+        .iter()
+        .filter_map(|(n, (fr, _))| (*fr == 0).then_some(*n))
+        .collect();
 
-    // return;
+    dbg!(&graph);
+    dbg!(&open);
 
-    dfs("AA", 0, &dag, &mut open, &mut dist);
-    dbg!(dist);
+    let cur = "AA";
+
+    dbg!(dfs(&graph, cur, 20, open));
 }
 
-fn dfs(
-    vert: Name,
-    layer: usize,
-    dag: &Dag,
-    open: &mut HashSet<Name>,
-    dist: &mut HashMap<Name, i32>,
-) {
-    if layer > 30 || vert == "END" {
-        return;
+fn dfs(graph: &Graph, cur: Name, time: u32, mut open: HashSet<Name>) -> u32 {
+    if time == 0 || graph.keys().all(|n| open.contains(n)) {
+        return 0;
     }
 
-    dbg!(layer);
+    eprintln!("{cur}, {time}");
+    dbg!(&open);
 
-    let ns = &dag[layer][vert];
-    for (name, cost) in ns {
-        let cost = if open.contains(name) {
-            0
-        } else {
-            *cost * (30 - (layer * 2) as u32)
-        } as i32;
+    let (flow, neighbours) = graph.get(cur).unwrap();
 
-        if *dist.entry(name).or_insert(i32::MIN) < dist[vert] + cost {
-            dist.insert(name, dist[vert] + cost);
+    let m = if !open.contains(cur) {
+        let score = flow * time;
+        open.insert(cur);
 
-            // if *name == vert {
-            //     open.insert(name);
-            // }
+        score
+            + neighbours
+                .iter()
+                .map(|n| dfs(graph, n, time - 1, open.clone()))
+                .max()
+                .unwrap()
+    } else {
+        0
+    };
 
-            dfs(name, layer + 1, dag, open, dist);
-        }
-    }
+    return max(
+        m,
+        neighbours
+            .iter()
+            .map(|n| dfs(graph, n, time - 1, open.clone()))
+            .max()
+            .unwrap(),
+    );
 }
+
+// fn dfs(
+//     vert: Name,
+//     layer: usize,
+//     dag: &Dag,
+//     open: &mut HashSet<Name>,
+//     dist: &mut HashMap<Name, i32>,
+// ) {
+//     if layer > 30 || vert == "END" {
+//         return;
+//     }
+
+//     dbg!(layer);
+
+//     let ns = &dag[layer][vert];
+//     for (name, cost) in ns {
+//         let cost = if open.contains(name) {
+//             0
+//         } else {
+//             *cost * (30 - (layer * 2) as u32)
+//         } as i32;
+
+//         if *dist.entry(name).or_insert(i32::MIN) < dist[vert] + cost {
+//             dist.insert(name, dist[vert] + cost);
+
+//             // if *name == vert {
+//             //     open.insert(name);
+//             // }
+
+//             dfs(name, layer + 1, dag, open, dist);
+//         }
+//     }
+// }
 
 fn part2() {}
 
@@ -60,8 +99,8 @@ type Dag = Vec<Layer>;
 type Layer = HashMap<Name, Vec<(Name, u32)>>;
 type Graph = HashMap<Name, (u32, Vec<Name>)>;
 
-fn parse_input() -> Dag {
-    let graph: Graph = INPUT
+fn parse_input() -> Graph {
+    INPUT
         .lines()
         .map(|line| {
             let mut line = line.split("; ");
@@ -81,10 +120,10 @@ fn parse_input() -> Dag {
 
             (name, (fr, connects))
         })
-        .collect();
+        .collect()
+}
 
-    dbg!(&graph);
-
+fn create_dag(graph: Graph) -> Dag {
     let mut dag: Dag = vec![HashMap::new()];
 
     let start = "AA";
